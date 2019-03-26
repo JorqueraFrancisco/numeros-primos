@@ -14,10 +14,14 @@ public class Ejecutar {
 		Scanner reader = new Scanner(System.in);
 		List<Future<Long>> list = new ArrayList<Future<Long>>();
 		ArrayList<Long> ListaTiempo = new ArrayList<Long>();  
+		System.out.print("ingrese numeros limite de numeros para analizar:");
+		int numeros = reader.nextInt();
+		
+		while (true) {
 		System.out.print("ingrese numeros de hilos a usar:");
 		int numeroHilos = reader.nextInt();
 		
-	int LIMITE = 200000/numeroHilos;
+	int LIMITE = numeros/numeroHilos;
 	
 
 	ExecutorService servicio= Executors.newFixedThreadPool(numeroHilos);
@@ -45,9 +49,9 @@ public class Ejecutar {
        
     }
 	
-	 System.out.print(" tiempo ejecución: "+(System.currentTimeMillis()-initialTime));
+	 System.out.print(" speed up = "+((System.currentTimeMillis()-initialTime)/numeroHilos)+"\n");
 	servicio.shutdown();
-	
+		}
 
 	}
 }
