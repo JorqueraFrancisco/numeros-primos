@@ -48,8 +48,8 @@ public class Ejecutar {
         }
        
     }
-	
-	 System.out.print(" speed up = "+((System.currentTimeMillis()-initialTime)/numeroHilos)+"\n");
+	System.out.print(" \n tiempo de ejecución: "+ (System.currentTimeMillis()-initialTime) +" ms\n");
+	 System.out.print(" speed up = "+((System.currentTimeMillis()-initialTime)/numeroHilos)+" ms/hilos\n \n");
 	servicio.shutdown();
 		}
 
