@@ -9,51 +9,74 @@ import java.util.concurrent.Future;
 
 public class Ejecutar {
 
-	public static void main(String[] args) throws InterruptedException, ExecutionException {
-	
+	public static void main(String[] args) throws InterruptedException, ExecutionException {		
+		/*
+		 * Objeto para leer por consola.                  
+		 */	
 		Scanner reader = new Scanner(System.in);
+		/*
+		 * Limite maximo de números.                  
+		 */	
 		List<Future<Long>> list = new ArrayList<Future<Long>>();
-		ArrayList<Long> ListaTiempo = new ArrayList<Long>();  
+		/*
+		 * Lista que guarda los tiempos de ejecución de cada hilo.                  
+		 */	
+		ArrayList<Long> ListaTiempo = new ArrayList<Long>();
 		System.out.print("ingrese numeros limite de numeros para analizar:");
+		/*
+		 * Variable que guarda el numero captado por consola.                  
+		 */	
 		int numeros = reader.nextInt();
+		/*
+		 * Variable que incrementa para generar los hilos.                  
+		 */	
+		int hilos = 1;
+		/*
+		 * Variable que guarda el tiempo de ejecucion del hilo uno.                  
+		 */	
+		long tiempoHiloUno = 0;
 		
-		while (true) {
-		System.out.print("ingrese numeros de hilos a usar:");
-		int numeroHilos = reader.nextInt();
-		
-	int LIMITE = numeros/numeroHilos;
-	
+		//while que itera hasta 16 hilos.
+		while (hilos <= 16) {
+			//Calculo del límite.
+			int limite = numeros / hilos;
+			/*
+			 * Se crea el pool de hilos.                
+			 */	
+			ExecutorService servicio = Executors.newFixedThreadPool(hilos);
+			int inferior = 1;
+			int superior = limite;
+			long initialTime = System.currentTimeMillis();
+			//Itera segun el numero de hilos.
+			for (int i = 1; i <= hilos; i++) {
+				Future<Long> resultado = servicio.submit(new Nprimos(superior, inferior));
+				list.add(resultado);
+				inferior = superior + 1;
+				superior += limite;
+				//Si supera el límite rompe el ciclo.
+				if (superior > limite * hilos) {
+					break;
+				}
+			}
 
-	ExecutorService servicio= Executors.newFixedThreadPool(numeroHilos);
-	int inferior = 1;
-	int superior = LIMITE;
-	long initialTime = System.currentTimeMillis() ;
-	
-	for(int i = 1 ; i<=numeroHilos; i++) {
-		
-		Future<Long> resultado= servicio.submit(new Nprimos(superior, inferior));
-		list.add(resultado);
-		inferior = superior+1;
-		superior += LIMITE;
-		if(superior>LIMITE*numeroHilos) break;
-	}
-	
-	
-	// se termina de ejecutar cuando todos los hilos terminan de trabajar.
-	for(Future<Long> resultado : list){
-        try {        	
-        	ListaTiempo.add(resultado.get());        	
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-       
-    }
-	System.out.print(" \n tiempo de ejecución: "+ (System.currentTimeMillis()-initialTime) +" ms\n");
-	 System.out.print(" speed up = "+((System.currentTimeMillis()-initialTime)/numeroHilos)+" ms/hilos\n \n");
-	servicio.shutdown();
+			// se termina de ejecutar cuando todos los hilos terminan de trabajar.
+			for (Future<Long> resultado : list) {
+				try {
+					ListaTiempo.add(resultado.get());
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if(hilos==1) {
+				tiempoHiloUno = System.currentTimeMillis() - initialTime; 
+			}
+			System.out.print(" \n " + "(" + hilos + ")" + "tiempo de ejecución: "+ (System.currentTimeMillis() - initialTime) + " ms\n");
+			System.out.print(" speed up = " + (double)(tiempoHiloUno /(System.currentTimeMillis() - initialTime)) + " \n");
+			servicio.shutdown();
+			//Se incrementa variable hilos.
+			hilos++;
 		}
 
 	}
 }
-
-
